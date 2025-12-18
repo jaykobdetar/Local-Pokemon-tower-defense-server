@@ -15,11 +15,11 @@ No internet connection or external servers required.
 
 - Python 3.6+
 - A Flash player (e.g., [FlashArch](https://flasharch.com/), Ruffle, or Flashpoint)
-- A modified PTD1 SWF file (included in this repo)
+- A modified PTD1 SWF file (included in this repo, the one included has a popup advertising the current community server, I just can't be bothered removing it atm, but it will default to the local server)
 
 ## Quick Start
 
-### 1. Start the Local Server
+### 1. Start the Local Server (Note, this must be done before starting the flash game)
 
 ```bash
 python ptd_server_v2.py
@@ -36,7 +36,9 @@ Waiting for connections...
 
 Open the included modified PTD1 SWF in your Flash player. The game defaults to connecting to `localhost:8080`. 
 
-To connect to a different server, use the options menu from the game's home screen.
+<img width="1285" height="717" alt="image" src="https://github.com/user-attachments/assets/5802fbc1-41eb-49f8-bef3-46f9687e66c2" />
+
+There is an option in the options menu for changing what server it connects to, clicking the back button from the options menus saves the changes
 
 ### 3. Create an Account
 
@@ -74,7 +76,7 @@ This is a minimal implementation focused on single-player functionality:
 - No trading between accounts
 - No online leaderboards
 - No daily/weekly  gifts challenges requiring server validation
-
+- Achievments have not yet been well tested
 
 ## Save Editor
 Mostly for testing purposes

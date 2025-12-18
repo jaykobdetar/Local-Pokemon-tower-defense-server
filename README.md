@@ -1,6 +1,6 @@
 # PTD1 Local Server & Save Editor
 
-A bare-minimum implementation to enable fully local/offline play of Pokemon Tower Defense 1. This project provides a local save server and save editor that work with the original PTD1 SWF file.
+A bare-minimum implementation to enable fully local/offline play of Pokemon Tower Defense 1. This project provides a local save server and save editor that work with the  PTD1 SWF file.
 
 ## Overview
 

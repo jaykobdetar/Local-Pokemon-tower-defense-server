@@ -12,7 +12,8 @@ import random
 import string
 import sys
 
-SAVE_DIR = os.path.expanduser("~/ptd_saves")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SAVE_DIR = os.path.join(BASE_DIR, "ptd_saves")
 
 # Pokemon data
 POKEMON_NAMES = {

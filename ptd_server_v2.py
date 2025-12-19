@@ -25,10 +25,12 @@ Full Snapshot Format (for loading):
 """
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from socketserver import ThreadingMixIn
 from urllib.parse import parse_qs
 import os
 import random
 import json
+import threading
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 
@@ -36,6 +38,18 @@ PORT = 8080
 SAVE_DIR = "./ptd_saves"
 
 os.makedirs(SAVE_DIR, exist_ok=True)
+
+# File lock for thread-safe save operations
+_file_lock = threading.Lock()
+
+
+# =============================================================================
+# Threading HTTP Server (prevents hanging on multiple requests)
+# =============================================================================
+
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    """Handle requests in separate threads to prevent blocking"""
+    daemon_threads = True  # Clean up threads on shutdown
 
 # =============================================================================
 # PTD Encoding/Decoding
@@ -610,16 +624,17 @@ def load_account(email: str, slot: str = None) -> Tuple[Dict, List[Dict]]:
     account = {}
     pokemon = []
     
-    if os.path.exists(account_path):
-        with open(account_path, "r") as f:
-            account = json.load(f)
-    
-    # Load slot-specific Pokemon if slot is provided
-    if slot:
-        pokemon_path = os.path.join(SAVE_DIR, f"{se}_pokemon_slot{slot}.json")
-        if os.path.exists(pokemon_path):
-            with open(pokemon_path, "r") as f:
-                pokemon = json.load(f)
+    with _file_lock:
+        if os.path.exists(account_path):
+            with open(account_path, "r") as f:
+                account = json.load(f)
+        
+        # Load slot-specific Pokemon if slot is provided
+        if slot:
+            pokemon_path = os.path.join(SAVE_DIR, f"{se}_pokemon_slot{slot}.json")
+            if os.path.exists(pokemon_path):
+                with open(pokemon_path, "r") as f:
+                    pokemon = json.load(f)
     
     return account, pokemon
 
@@ -629,14 +644,15 @@ def save_account(email: str, account: Dict, pokemon: List[Dict], slot: str = Non
     se = safe_email(email)
     account_path = os.path.join(SAVE_DIR, f"{se}_account.json")
     
-    with open(account_path, "w") as f:
-        json.dump(account, f, indent=2)
-    
-    # Save slot-specific Pokemon if slot is provided
-    if slot:
-        pokemon_path = os.path.join(SAVE_DIR, f"{se}_pokemon_slot{slot}.json")
-        with open(pokemon_path, "w") as f:
-            json.dump(pokemon, f, indent=2)
+    with _file_lock:
+        with open(account_path, "w") as f:
+            json.dump(account, f, indent=2)
+        
+        # Save slot-specific Pokemon if slot is provided
+        if slot and pokemon is not None:
+            pokemon_path = os.path.join(SAVE_DIR, f"{se}_pokemon_slot{slot}.json")
+            with open(pokemon_path, "w") as f:
+                json.dump(pokemon, f, indent=2)
 
 
 # =============================================================================
@@ -1012,7 +1028,7 @@ def main():
     print(f"Saves will be stored in: {os.path.abspath(SAVE_DIR)}")
     print(f"\nWaiting for connections...\n")
     
-    server = HTTPServer(("0.0.0.0", PORT), PTDHandler)
+    server = ThreadedHTTPServer(("0.0.0.0", PORT), PTDHandler)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

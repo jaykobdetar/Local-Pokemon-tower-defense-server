@@ -159,7 +159,8 @@ This usually means Pokemon data is corrupted. Solutions:
 - Check server console for error messages
 - Verify save files are being created in `./ptd_saves/`
 
-
+### Known issues
+As of right now, it appears that releasing pokemon doesn't save, so if you try and release a pokmeon and reload it will be back, if you must remove a pokemon from a save file you can use the save editor to do so.
 ## Credits ##
 
 - Original game by Sam & Dan Games
